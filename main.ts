@@ -10,6 +10,7 @@ import {
 	moment,
 } from "obsidian";
 import * as momentTimezone from "moment-timezone";
+import { LIST_BULLET_REGEX, LIST_TASK_REGEX, isCursorInListLine, isListLineTask, getInsertPositionAfterBullet, getInsertPositionInLineFromText } from "./utils";
 
 interface TiditPluginSettings {
 	tiditOn: boolean;
@@ -19,6 +20,7 @@ interface TiditPluginSettings {
 	timezone: string;
 	useManualTimezoneOffset: boolean;
 	timezoneOffset: number;
+	addTimestampToListLines: boolean;
 }
 
 const DEFAULT_SETTINGS: TiditPluginSettings = {
@@ -29,6 +31,7 @@ const DEFAULT_SETTINGS: TiditPluginSettings = {
 	timezone: "local",
 	useManualTimezoneOffset: false,
 	timezoneOffset: 0,
+	addTimestampToListLines: false,
 };
 
 export default class TiditPlugin extends Plugin {
@@ -68,48 +71,20 @@ export default class TiditPlugin extends Plugin {
 		this.lastTimeStampInsertTimestamp = moment(0);
 	}
 
-	isCursorInListLine(line: string): boolean {
-		// Check if the current line is a list item (starts with '-', '*', or a number)
-		return /^\s*[-*+]\s/.test(line) || /^\s*\d+\.\s/.test(line);
-	}
-
 	isCodeBlockStartEnd(line: string): boolean {
 		return line.startsWith("`") || line.endsWith("```");
 	}
 
 	getInsertPositionInLine(editor: Editor): number {
-		const cursor = editor.getCursor();
-		// line already moved with the ENTER key. look back one line
-		const lineText = editor.getLine(cursor.line - 1);
-		
-		if (this.isCursorInListLine(lineText)) {
-			return -1;
-		}
-
-		if (this.isCodeBlockStartEnd(lineText)) {
-			return -1;
-		}
-
-		// Check if the beginning of the line matches a datetime string with the format
-		const timestampFormat = this.settings.timestampFormat;
-		const formattedTimestampLength = moment().format(timestampFormat).length;
-
-		try {
-			// strict mode to ensure exact match
-			const matchTimeStamp = moment(
-				lineText.trim().substring(0, formattedTimestampLength),
-				timestampFormat,
-				true
-			);
-			if (matchTimeStamp.isValid()) {
-				return -1; 	// Don't insert if it matches the timestamp format
-			}
-		} catch {
-			// If parsing fails, it's not a matching timestamp format
-			return -1;
-		}
-
-		return 0;
+	       const cursor = editor.getCursor();
+	       // line already moved with the ENTER key. look back one line
+	       const lineText = editor.getLine(cursor.line - 1);
+	       return getInsertPositionInLineFromText(
+		       lineText,
+		       this.settings.addTimestampToListLines,
+		       this.settings.timestampFormat,
+		       this.isCodeBlockStartEnd.bind(this)
+	       );
 	}
 
 	async onload() {
@@ -381,5 +356,17 @@ class TiditSettingTab extends PluginSettingTab {
 						}
 					})
 			);
+
+			new Setting(containerEl)
+				.setName("Add Timestamp to List Lines")
+				.setDesc("Enable to add timestamp to each line in the list")
+				.addToggle((toggle) =>
+					toggle
+						.setValue(this.plugin.settings.addTimestampToListLines)
+						.onChange(async (value) => {
+							this.plugin.settings.addTimestampToListLines = value;
+							await this.plugin.saveSettings();
+						})
+				);
 	}
 }
