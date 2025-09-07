@@ -1,11 +1,11 @@
 {
 	"id": "tidit",
 	"name": "tidit",
-	"version": "1.0.1",
 	"minAppVersion": "1.7.0",
 	"description": "tidit adds timestamps to your document as you type — when you want it, how you want it, where you want it.",
 	"author": "codingthings.com",
 	"authorUrl": "https://www.codingthings.com",
 	"fundingUrl": "",
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+	"version": "1.0.2"
 }

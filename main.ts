@@ -251,6 +251,7 @@ class TiditSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.tiditOn = value;
 						this.plugin.updateStatusText();
+						await this.plugin.saveSettings();
 					})
 			);
 
