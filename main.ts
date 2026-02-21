@@ -47,7 +47,7 @@ export default class TiditPlugin extends Plugin {
 		
 		if (this.settings.timezone !== "local" && this.settings.timezone !== "UTC") {
 			// Use moment-timezone for non-local/UTC timezones
-			timestampMoment = momentTimezone.tz(moment(), this.settings.timezone);
+			timestampMoment = momentTimezone.tz(Date.now(), this.settings.timezone);
 		} else if (this.settings.timezone === "UTC") {
 			// For UTC, use moment().utc()
 			timestampMoment = moment().utc();
