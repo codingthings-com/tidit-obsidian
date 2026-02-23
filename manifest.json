@@ -6,5 +6,6 @@
 	"author": "codingthings.com",
 	"authorUrl": "https://www.codingthings.com",
 	"fundingUrl": "",
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+	"version": "1.0.4"
 }

@@ -1,6 +1,6 @@
 {
 	"name": "tidit-obsidian-plugin",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Adds timestamps to your document as you type - when you want it, how you want it.",
 	"main": "main.js",
 	"scripts": {
